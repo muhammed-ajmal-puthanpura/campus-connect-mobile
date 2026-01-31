@@ -2,6 +2,27 @@
 
 A Flutter mobile application for the Campus Event Management System.
 
+## 🚀 Quick Start - How to Run
+
+**Fastest way to preview the app (2 minutes):**
+
+```bash
+cd mobile_app
+flutter pub get
+flutter config --enable-web
+flutter run -d chrome
+```
+
+Login with: `student@example.com` / `password123`
+
+**📖 Need help?** See [HOW_TO_RUN.md](../HOW_TO_RUN.md) for complete step-by-step instructions!
+
+**🎬 Quick Start Scripts:**
+- Linux/Mac: `./run_app.sh`
+- Windows: `run_app.bat`
+
+---
+
 ## Features
 
 ### Role-Based Dashboards
