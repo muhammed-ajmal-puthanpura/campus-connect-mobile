@@ -1,0 +1,12 @@
+/* Mobile-only refinements for the new dashboard UI */
+@media (max-width: 768px) {
+    .main-content {
+        padding-bottom: 5.5rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-bottom-nav {
+        display: none !important;
+    }
+}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>💬 Student Feedback</h1>
+    <p><strong>Average Rating:</strong> {{ avg_rating }} / 5</p>
+    {% for fb in all_feedback %}
+    <div class="feedback-card">
+        <p><strong>Event:</strong> {{ fb.event.title }}</p>
+        <p><strong>Rating:</strong> {{ fb.rating }}/5</p>
+        <p><strong>Comments:</strong> {{ fb.comments }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

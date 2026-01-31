@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Event Details{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{ event.title }}</h1>
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('organizer.edit_event', event_id=event.event_id) }}" class="btn btn-secondary">Edit Event</a>
+        <form method="POST" action="{{ url_for('organizer.delete_event', event_id=event.event_id) }}" style="display:inline-block;" onsubmit="return confirmAction('Delete this event?')">
+            <button type="submit" class="btn btn-danger">Delete Event</button>
+        </form>
+    </div>
+    <div class="event-details-card">
+        {% if event.poster_url %}
+            <img src="{{ url_for('static', filename=event.poster_url) }}" alt="{{ event.title }} poster" class="event-poster">
+        {% endif %}
+        <p><strong>Description:</strong> {{ event.description }}</p>
+        <p><strong>Date:</strong> {{ event.date.strftime('%B %d, %Y') }}</p>
+        <p><strong>Time:</strong> {{ event.start_time.strftime('%H:%M') }} - {{ event.end_time.strftime('%H:%M') }}</p>
+        <p><strong>Mode:</strong> {% if (event.mode or '')|lower == 'online' %}Online{% else %}Offline{% endif %}</p>
+        <p><strong>Venue:</strong> {{ event.venue.venue_name if event.venue else '—' }}</p>
+        {% if (event.mode or '')|lower == 'online' and event.meeting_url %}
+        <p><strong>Meeting Link:</strong> <a href="{{ event.meeting_url }}" target="_blank">Join Meeting</a></p>
+        {% endif %}
+        <p><strong>Status:</strong> <span class="badge badge-{{ 'success' if event.status == 'approved' else 'warning' }}">{{ event.status }}</span></p>
+    </div>
+    <h2>Registrations ({{ registrations|length }})</h2>
+    <p>Attended: {{ attended_count }}</p>
+    <table class="table">
+        <thead><tr><th>Student</th><th>Email</th><th>Registered At</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for reg in registrations %}
+            <tr>
+                <td>{{ reg.student.full_name }}</td>
+                <td>{{ reg.student.email }}</td>
+                <td>{{ reg.registered_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if reg.attendance %}
+                        <span class="badge badge-success">Present</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Not Marked</span>
+                        {% if (event.mode or '')|lower == 'online' %}
+                            <form method="POST" action="{{ url_for('organizer.mark_attendance', registration_id=reg.registration_id) }}" style="display:inline-block; margin-left:8px;">
+                                <button type="submit" class="btn btn-sm btn-primary">Mark Present</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Approval History</h2>
+    {% for approval in approvals %}
+    <div class="approval-card">
+        <p><strong>{{ approval.approver_role }}:</strong> {{ approval.approver.full_name }}</p>
+        <p><strong>Status:</strong> {{ approval.status }}</p>
+        <p><strong>Remarks:</strong> {{ approval.remarks or 'N/A' }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

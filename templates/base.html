@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Campus Event System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if session.get('user_id') %}app-body{% endif %}">
+    <!-- Navigation -->
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h2>🎓 Campus Connect</h2>
+            </div>
+                <button class="nav-toggle" aria-label="Toggle navigation" onclick="toggleMobileMenu()">☰</button>
+            <div class="nav-menu">
+                <span class="user-info">
+                    👤 {{ session.full_name }} ({{ session.role_name }})
+                </span>
+                
+                {% if (session.get('role_name') or '')|lower == 'student' %}
+                    <a href="{{ url_for('student.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('student.events') }}">Events</a>
+                    <a href="{{ url_for('student.my_registrations') }}">My Registrations</a>
+                    <a href="{{ url_for('student.my_certificates') }}">Certificates</a>
+                {% elif (session.get('role_name') or '')|lower in ['event organizer', 'organizer'] %}
+                    <a href="{{ url_for('organizer.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('organizer.create_event') }}">Create Event</a>
+                {% elif (session.get('role_name') or '')|lower == 'hod' %}
+                    <a href="{{ url_for('hod.dashboard') }}">Dashboard</a>
+                {% elif (session.get('role_name') or '')|lower == 'principal' %}
+                    <a href="{{ url_for('principal.dashboard') }}">Dashboard</a>
+                {% elif (session.get('role_name') or '')|lower == 'admin' %}
+                    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('admin.events') }}">Events</a>
+                    <a href="{{ url_for('admin.reports') }}">Reports</a>
+                    <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+                {% endif %}
+                
+                <a href="{{ url_for('common.profile') }}">Profile</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Campus Event Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% if session.get('user_id') %}
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        {% if (session.get('role_name') or '')|lower == 'student' %}
+            <a href="{{ url_for('student.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('student.events') }}">Events</a>
+            <a href="{{ url_for('student.my_registrations') }}">Registrations</a>
+            <a href="{{ url_for('student.my_certificates') }}">Certificates</a>
+        {% elif (session.get('role_name') or '')|lower in ['event organizer', 'organizer'] %}
+            <a href="{{ url_for('organizer.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('organizer.create_event') }}">Create Event</a>
+        {% elif (session.get('role_name') or '')|lower == 'hod' %}
+            <a href="{{ url_for('hod.dashboard') }}">Dashboard</a>
+        {% elif (session.get('role_name') or '')|lower == 'principal' %}
+            <a href="{{ url_for('principal.dashboard') }}">Dashboard</a>
+        {% elif (session.get('role_name') or '')|lower == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin.events') }}">Events</a>
+            <a href="{{ url_for('admin.reports') }}">Reports</a>
+            <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+        {% endif %}
+
+        <a href="{{ url_for('common.profile') }}">Profile</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </nav>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

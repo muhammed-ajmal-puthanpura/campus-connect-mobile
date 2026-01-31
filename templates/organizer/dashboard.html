@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Organizer Dashboard{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>🎯 Organizer Dashboard</h1>
+    <div class="dashboard-stats">
+        <div class="stat-card"><h3>{{ pending_count }}</h3><p>Pending</p></div>
+        <div class="stat-card"><h3>{{ approved_count }}</h3><p>Approved</p></div>
+        <div class="stat-card"><h3>{{ rejected_count }}</h3><p>Rejected</p></div>
+    </div>
+    <a href="{{ url_for('organizer.create_event') }}" class="btn btn-primary">+ Create New Event</a>
+    <h2>My Events</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.title }}</td>
+                    <td>{{ event.date.strftime('%Y-%m-%d') }}</td>
+                    <td><span class="badge badge-{{ 'success' if event.status == 'approved' else 'warning' if event.status == 'pending' else 'danger' }}">{{ event.status }}</span></td>
+                    <td>
+                        <a href="{{ url_for('organizer.view_event', event_id=event.event_id) }}" class="btn btn-sm">View</a>
+                        <a href="{{ url_for('organizer.edit_event', event_id=event.event_id) }}" class="btn btn-sm btn-secondary">Edit</a>
+                        <form method="POST" action="{{ url_for('organizer.delete_event', event_id=event.event_id) }}" style="display:inline-block;" onsubmit="return confirmAction('Delete this event?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                        {% if event.status == 'approved' and ((event.mode or '')|lower) == 'offline' %}
+                        <a href="{{ url_for('organizer.scan_qr', event_id=event.event_id) }}" class="btn btn-sm btn-primary">Scan QR</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

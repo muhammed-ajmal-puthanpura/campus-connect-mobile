@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>📊 Reports & Analytics</h1>
+    <div class="filter-form">
+        <a class="btn btn-secondary" href="{{ url_for('admin.export_reports', format='xlsx') }}">Export Excel</a>
+        <a class="btn btn-secondary" href="{{ url_for('admin.export_reports', format='pdf') }}">Export PDF</a>
+    </div>
+    <div class="report-section">
+        <h2>Top Participating Students</h2>
+        <table class="table">
+            <thead><tr><th>Name</th><th>Email</th><th>Events Attended</th></tr></thead>
+            <tbody>{% for student in top_students %}<tr><td>{{ student[0] }}</td><td>{{ student[1] }}</td><td>{{ student[2] }}</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+    <div class="report-section">
+        <h2>Most Active Organizers</h2>
+        <table class="table">
+            <thead><tr><th>Name</th><th>Email</th><th>Events Created</th></tr></thead>
+            <tbody>{% for organizer in top_organizers %}<tr><td>{{ organizer[0] }}</td><td>{{ organizer[1] }}</td><td>{{ organizer[2] }}</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+    <div class="report-section">
+        <h2>Best Rated Organizers (Student Feedback)</h2>
+        <table class="table">
+            <thead><tr><th>Name</th><th>Email</th><th>Average Rating</th><th>Feedback Count</th></tr></thead>
+            <tbody>{% for organizer in organizer_feedback %}<tr><td>{{ organizer[0] }}</td><td>{{ organizer[1] }}</td><td>{{ '%.2f'|format(organizer[2] or 0) }}</td><td>{{ organizer[3] }}</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

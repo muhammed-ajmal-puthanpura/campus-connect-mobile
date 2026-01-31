@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}My Registrations{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>🎫 My Event Registrations</h1>
+
+    <form method="GET" class="filter-form">
+        <select name="organizer">
+            <option value="" {% if not organizer_filter %}selected{% endif %}>All Organizers</option>
+            {% for organizer in organizers %}
+                <option value="{{ organizer.user_id }}" {% if organizer_filter and organizer_filter|int == organizer.user_id %}selected{% endif %}>
+                    {{ organizer.full_name }}
+                </option>
+            {% endfor %}
+        </select>
+        <select name="mode">
+            <option value="" {% if not mode_filter %}selected{% endif %}>All Modes</option>
+            <option value="online" {% if mode_filter == 'online' %}selected{% endif %}>Online</option>
+            <option value="offline" {% if mode_filter == 'offline' %}selected{% endif %}>Offline</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+    
+    {% if registration_data %}
+        <div class="registrations-grid">
+            {% for data in registration_data %}
+            <div class="registration-card">
+                <h3>{{ data.event.title }}</h3>
+                <div class="registration-info">
+                    <p><strong>Date:</strong> {{ data.event.date.strftime('%B %d, %Y') }}</p>
+                    <p><strong>Time:</strong> {{ data.event.start_time.strftime('%H:%M') }} - {{ data.event.end_time.strftime('%H:%M') }}</p>
+                    <p><strong>Mode:</strong> {% if (data.event.mode or '')|lower == 'online' %}Online{% else %}Offline{% endif %}</p>
+                    <p><strong>Venue:</strong> {{ data.event.venue.venue_name if data.event.venue else '—' }}</p>
+                    {% if (data.event.mode or '')|lower == 'online' and data.event.meeting_url %}
+                        <p><strong>Meeting Link:</strong> <a href="{{ data.event.meeting_url }}" target="_blank">Open Meeting</a></p>
+                    {% endif %}
+                    <p><strong>Registered:</strong> {{ data.registration.registered_at.strftime('%B %d, %Y %H:%M') }}</p>
+                </div>
+                
+                <div class="qr-section">
+                    <h4>Your QR Ticket</h4>
+                    <img src="data:image/png;base64,{{ data.qr_image }}" alt="QR Code" class="qr-code">
+                    <p class="qr-instruction">Show this QR code at the event entrance</p>
+                    {% if data.attended %}
+                        <span class="badge badge-success">✓ Attendance Marked</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏳ Not Yet Attended</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>You haven't registered for any events yet.</p>
+            <a href="{{ url_for('student.events') }}" class="btn btn-primary">Browse Events</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

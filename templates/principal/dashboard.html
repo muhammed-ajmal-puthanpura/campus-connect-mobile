@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Principal Dashboard{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>🎓 Principal Dashboard</h1>
+    <h2>Pending Approvals ({{ pending_approvals|length }})</h2>
+    {% for approval in pending_approvals %}
+    <div class="approval-card">
+        <h3>{{ approval.event.title }}</h3>
+        <p>{{ approval.event.description }}</p>
+        <p><strong>Date:</strong> {{ approval.event.date.strftime('%B %d, %Y') }}</p>
+        <a href="{{ url_for('principal.approve_event', approval_id=approval.approval_id) }}" class="btn btn-primary">Review</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>👤 User Profile</h1>
+    <div class="profile-card">
+        <p><strong>Name:</strong> {{ user.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Role:</strong> {{ user.role.role_name }}</p>
+        {% if user.department %}<p><strong>Department:</strong> {{ user.department.dept_name }}</p>{% endif %}
+        <p><strong>Member Since:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+    </div>
+    <div style="margin-top:1rem;">
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary">Change Password</a>
+    </div>
+</div>
+{% endblock %}

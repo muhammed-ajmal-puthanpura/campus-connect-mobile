@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}My Certificates{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>📜 My Certificates</h1>
+    <form method="GET" class="filter-form">
+        <input type="text" name="q" class="form-control" placeholder="Search by event name" value="{{ search_query or '' }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    {% if certificates %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>Event</th><th>Issued Date</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                    <tr>
+                        <td>{{ cert.event.title }}</td>
+                        <td>{{ cert.issued_at.strftime('%B %d, %Y') }}</td>
+                        <td><a href="{{ url_for('student.download_certificate', certificate_id=cert.certificate_id) }}" class="btn btn-primary">Download PDF</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No certificates yet. Attend events to earn certificates!</p>
+    {% endif %}
+</div>
+{% endblock %}

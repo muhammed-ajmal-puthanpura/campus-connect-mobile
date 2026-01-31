@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Scan QR Code{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>📷 Scan QR Code - {{ event.title }}</h1>
+    <div class="qr-scanner-container">
+        <div class="scanner-section">
+            <h3>Manual QR Input</h3>
+            <input type="text" id="qr-input" class="form-control" placeholder="Paste or type QR code">
+            <button onclick="validateQRCode()" class="btn btn-primary">Validate</button>
+        </div>
+        <div class="scanner-section">
+            <h3>Camera Scanner</h3>
+            <div>
+                <label for="camera-select">Camera:</label>
+                <select id="camera-select" class="form-control" style="display:inline-block; width:auto;"></select>
+                <button id="start-scan" class="btn btn-success">Start</button>
+                <button id="stop-scan" class="btn btn-danger" disabled>Stop</button>
+                <span id="camera-status" style="margin-left:12px;color:#666;font-size:0.95em"></span>
+                <button id="test-camera" class="btn btn-outline-secondary" style="margin-left:8px;">Test Camera</button>
+            </div>
+            <div id="qr-reader" style="width:100%; max-width:480px; margin-top:12px;"></div>
+        </div>
+        <div id="result-section" class="result-section" style="display:none;">
+            <h3>Scan Result</h3>
+            <div id="scan-result"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<!-- include html5-qrcode from CDN -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+<script>
+// Load html5-qrcode from CDN and initialize camera-based scanning
+// Note: Requires internet access to fetch the library. If offline, include a local copy.
+const SCAN_CONTAINER_ID = 'qr-reader';
+let html5QrcodeScanner = null;
+let currentCameraId = null;
+
+async function listCameras() {
+    try {
+        let devices = [];
+        // Prefer Html5Qrcode helper when available
+        if (typeof Html5Qrcode !== 'undefined' && Html5Qrcode.getCameras) {
+            try {
+                devices = await Html5Qrcode.getCameras();
+            } catch (e) {
+                devices = [];
+            }
+        }
+        // Fallback: use enumerateDevices to find video inputs
+        if (!devices || devices.length === 0) {
+            try {
+                const all = await navigator.mediaDevices.enumerateDevices();
+                devices = all.filter(d => d.kind === 'videoinput').map(d => ({ id: d.deviceId, label: d.label }));
+            } catch (e) {
+                devices = devices || [];
+            }
+        }
+
+        const select = document.getElementById('camera-select');
+        select.innerHTML = '';
+        if (devices && devices.length) {
+            devices.forEach(dev => {
+                const option = document.createElement('option');
+                option.value = dev.id;
+                option.text = dev.label || dev.id || 'Camera';
+                select.appendChild(option);
+            });
+            currentCameraId = devices[0].id;
+            document.getElementById('camera-status').textContent = devices.length + ' camera(s) found';
+        } else {
+            document.getElementById('camera-status').textContent = 'No camera devices found';
+        }
+    } catch (e) {
+        console.warn('Could not list cameras', e);
+        document.getElementById('camera-status').textContent = 'Unable to list cameras — check permissions';
+        // try to request permission to trigger device list update
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video: true});
+                // immediately stop stream; this should prompt permission and refresh devices
+                stream.getTracks().forEach(t => t.stop());
+                // re-attempt listing
+                await listCameras();
+                return;
+            } catch (permErr) {
+                console.warn('getUserMedia permission denied or failed', permErr);
+                document.getElementById('camera-status').textContent = 'Camera permission denied or not available';
+            }
+        }
+    }
+}
+
+function startCameraScan() {
+    const cameraSelect = document.getElementById('camera-select');
+    const cameraId = cameraSelect.value || currentCameraId;
+    if (!cameraId) {
+        alert('No camera found');
+        return;
+    }
+    document.getElementById('start-scan').disabled = true;
+    document.getElementById('stop-scan').disabled = false;
+
+    html5QrcodeScanner = new Html5Qrcode(SCAN_CONTAINER_ID);
+    // If we have a deviceId, pass it; otherwise try starting with facingMode fallback
+    const cameraArg = cameraId || { facingMode: 'environment' };
+    html5QrcodeScanner.start(
+        cameraArg,
+        {
+            fps: 10,
+            qrbox: { width: 300, height: 300 }
+        },
+        qrCodeMessage => {
+            // Stop scanning briefly to avoid duplicate reads
+            try {
+                html5QrcodeScanner.pause();
+            } catch (e) {}
+            sendScannedCode(qrCodeMessage).then(() => {
+                // resume after a short delay
+                setTimeout(() => {
+                    try { html5QrcodeScanner.resume(); } catch (e) {}
+                }, 1200);
+            });
+        },
+        errorMessage => {
+            // ignore
+        }
+    ).catch(err => {
+        console.error('Failed to start camera', err);
+        const status = document.getElementById('camera-status');
+        status.textContent = 'Failed to access camera: ' + (err && err.message ? err.message : err);
+        document.getElementById('start-scan').disabled = false;
+        document.getElementById('stop-scan').disabled = true;
+    });
+}
+
+function stopCameraScan() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+            document.getElementById('start-scan').disabled = false;
+            document.getElementById('stop-scan').disabled = true;
+        }).catch(err => {
+            console.warn('Error stopping scanner', err);
+        });
+    }
+}
+
+async function sendScannedCode(qrCode) {
+    const resultDiv = document.getElementById('scan-result');
+    const resultSection = document.getElementById('result-section');
+    resultSection.style.display = 'block';
+    try {
+        const res = await fetch('/organizer/validate-qr', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({qr_code: qrCode, event_id: {{ event.event_id }}})
+        });
+        const data = await res.json();
+        if (data.success) {
+            resultDiv.innerHTML = `<div class="alert alert-success"><strong>✓ Success!</strong><br>Student: ${data.student_name}<br>${data.message}</div>`;
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-error"><strong>✗ Error</strong><br>${data.message}</div>`;
+        }
+    } catch (e) {
+        resultDiv.innerHTML = `<div class="alert alert-error"><strong>✗ Error</strong><br>Network or server error</div>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // load camera list
+    if (typeof Html5Qrcode !== 'undefined') {
+        listCameras();
+    }
+    document.getElementById('start-scan').addEventListener('click', startCameraScan);
+    document.getElementById('stop-scan').addEventListener('click', stopCameraScan);
+    document.getElementById('test-camera').addEventListener('click', async function() {
+        const status = document.getElementById('camera-status');
+        status.textContent = 'Requesting camera preview...';
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            status.textContent = 'getUserMedia not supported by this browser';
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            // create preview video element
+            let v = document.getElementById('camera-preview');
+            if (!v) {
+                v = document.createElement('video');
+                v.id = 'camera-preview';
+                v.autoplay = true;
+                v.playsInline = true;
+                v.style.width = '320px';
+                v.style.height = 'auto';
+                v.style.marginLeft = '12px';
+                document.getElementById('qr-reader').appendChild(v);
+            }
+            v.srcObject = stream;
+            status.textContent = 'Camera preview running';
+            // stop stream after 10 seconds automatically
+            setTimeout(() => {
+                stream.getTracks().forEach(t => t.stop());
+                status.textContent = 'Camera preview stopped';
+                if (v && v.srcObject) v.srcObject = null;
+            }, 10000);
+            // refresh device list after permission granted
+            try { await listCameras(); } catch (e) {}
+        } catch (err) {
+            console.error('Preview failed', err);
+            status.textContent = 'Camera preview failed: ' + (err && err.message ? err.message : err);
+        }
+    });
+});
+function validateQRCode() {
+    const qrCode = document.getElementById('qr-input').value;
+    if (!qrCode) {
+        alert('Please enter QR code');
+        return;
+    }
+    fetch('/organizer/validate-qr', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({qr_code: qrCode, event_id: {{ event.event_id }}})
+    })
+    .then(res => res.json())
+    .then(data => {
+        const resultDiv = document.getElementById('scan-result');
+        const resultSection = document.getElementById('result-section');
+        resultSection.style.display = 'block';
+        if (data.success) {
+            resultDiv.innerHTML = `<div class="alert alert-success"><strong>✓ Success!</strong><br>Student: ${data.student_name}<br>${data.message}</div>`;
+            document.getElementById('qr-input').value = '';
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-error"><strong>✗ Error</strong><br>${data.message}</div>`;
+        }
+    });
+}
+document.getElementById('qr-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') validateQRCode();
+});
+</script>
+{% endblock %}
