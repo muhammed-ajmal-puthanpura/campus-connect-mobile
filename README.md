@@ -2,6 +2,24 @@
 
 A complete web-based event management platform for educational institutions built with Flask, SQLAlchemy, and vanilla JavaScript.
 
+## 🎉 NEW: Flutter Mobile App Available!
+
+**⚠️ IMPORTANT: The mobile app code is on a feature branch!**
+
+To access the Flutter mobile app:
+```bash
+git checkout copilot/implement-campus-event-management-app
+```
+
+**Quick guides:**
+- 📱 **QUICK_ANSWER.md** - Why you can't see the code & how to fix it
+- 📥 **DOWNLOAD_AND_RUN.md** - Complete download & setup guide  
+- 🚀 **HOW_TO_RUN.md** - Running instructions
+
+**Can't see `mobile_app/` folder?** → Read **QUICK_ANSWER.md** first!
+
+---
+
 ## Features
 
 ### Multi-Role System
