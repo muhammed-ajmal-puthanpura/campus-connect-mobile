@@ -1,0 +1,209 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║           🚀 CAMPUS CONNECT MOBILE APP - QUICK START GUIDE 🚀               ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📋 PREREQUISITES                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  ✓ Flutter SDK 3.0+ installed (https://flutter.dev)
+  ✓ Backend server running at http://localhost:5000
+  ✓ Chrome browser (for web preview)
+  ✓ Android Studio or Xcode (for mobile preview)
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ⚡ FASTEST WAY TO RUN (2 minutes)                                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  1. Open terminal/command prompt
+  
+  2. Navigate to project:
+     cd campus-connect-mobile/mobile_app
+  
+  3. Install dependencies:
+     flutter pub get
+  
+  4. Enable web:
+     flutter config --enable-web
+  
+  5. Run in Chrome:
+     flutter run -d chrome
+  
+  ✨ App will open in browser! Login with: student@example.com / password123
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🎯 QUICK START OPTIONS                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Option 1: Use Quick Start Script
+  ┌────────────────────────────────────────────────────────────────────────────┐
+  │ Linux/Mac:                          Windows:                               │
+  │   ./run_app.sh                        run_app.bat                          │
+  │                                                                            │
+  │ The script will guide you through the setup!                              │
+  └────────────────────────────────────────────────────────────────────────────┘
+
+  Option 2: Manual Commands
+  ┌────────────────────────────────────────────────────────────────────────────┐
+  │ cd mobile_app                                                              │
+  │ flutter pub get                                                            │
+  │ flutter run -d chrome        # Browser (easiest)                          │
+  │ flutter run -d android       # Android emulator                           │
+  │ flutter run -d ios           # iOS simulator (macOS only)                 │
+  │ flutter run                  # First available device                     │
+  └────────────────────────────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🔧 COMMON COMMANDS                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  flutter devices              List all available devices
+  flutter doctor               Check your Flutter setup
+  flutter clean                Clean build artifacts
+  flutter pub get              Install dependencies
+  flutter run -d chrome        Run in Chrome browser
+  flutter run                  Run on first available device
+  
+  During app run:
+  Press 'r'                    Hot reload (apply changes instantly)
+  Press 'R'                    Hot restart (restart app)
+  Press 'q'                    Quit app
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🔗 CONFIGURE BACKEND URL                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Edit: mobile_app/lib/config/api_config.dart
+  
+  Change line:
+    static const String baseUrl = 'http://localhost:5000';
+  
+  To:
+    For Android Emulator:   'http://10.0.2.2:5000'
+    For iOS Simulator:      'http://localhost:5000'
+    For Physical Device:    'http://YOUR_COMPUTER_IP:5000'
+    For Production:         'https://your-domain.com'
+  
+  Find your IP:
+    Windows: ipconfig
+    Mac/Linux: ifconfig or ip addr
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 👤 DEMO ACCOUNTS                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  ┌────────────────┬──────────────────────────┬─────────────────┐
+  │ Role           │ Email                    │ Password        │
+  ├────────────────┼──────────────────────────┼─────────────────┤
+  │ Student        │ student@example.com      │ password123     │
+  │ Organizer      │ organizer@example.com    │ password123     │
+  │ HOD            │ hod@example.com          │ password123     │
+  │ Principal      │ principal@example.com    │ password123     │
+  │ Admin          │ admin@example.com        │ password123     │
+  └────────────────┴──────────────────────────┴─────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🎨 PREVIEW OPTIONS                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  ① Chrome Browser (Fastest)
+     ✓ No setup needed
+     ✓ Works on all OS
+     ✗ Limited camera/QR features
+  
+  ② Android Emulator
+     ✓ Full Android experience
+     ✓ Test all features
+     ✗ Slower, needs more RAM
+  
+  ③ iOS Simulator (macOS)
+     ✓ Full iOS experience
+     ✓ Fast on Apple Silicon
+     ✗ macOS only
+  
+  ④ Physical Device
+     ✓ Real experience
+     ✓ All features work
+     ✗ Needs USB connection
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ❓ TROUBLESHOOTING                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Problem: "Flutter not found"
+  Solution: Install Flutter from https://flutter.dev
+  
+  Problem: "No devices found"
+  Solution: flutter config --enable-web (for Chrome)
+            Start Android emulator or iOS simulator
+  
+  Problem: "Cannot connect to backend"
+  Solution: 1. Check backend is running: curl http://localhost:5000
+            2. Update API URL in lib/config/api_config.dart
+            3. For emulator: use 10.0.2.2:5000 instead of localhost
+  
+  Problem: "Gradle build failed"
+  Solution: cd android && ./gradlew clean
+            cd .. && flutter clean && flutter pub get
+  
+  Problem: "Hot reload not working"
+  Solution: Press 'R' (capital R) for hot restart
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  HOW_TO_RUN.md              Complete step-by-step guide (this file)
+  mobile_app/README.md       Project overview
+  mobile_app/DEVELOPER_GUIDE.md    Detailed developer guide
+  mobile_app/QUICKSTART.md   End-user guide
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📁 PROJECT STRUCTURE                                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  mobile_app/
+  ├── lib/
+  │   ├── main.dart           ← App entry point
+  │   ├── config/            ← API & theme settings
+  │   ├── models/            ← Data models
+  │   ├── services/          ← API services
+  │   ├── providers/         ← State management
+  │   ├── screens/           ← UI screens (auth, student, etc.)
+  │   └── widgets/           ← Reusable components
+  ├── android/               ← Android configuration
+  ├── ios/                   ← iOS configuration
+  └── pubspec.yaml           ← Dependencies
+
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ✨ NEXT STEPS                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  1. Run the app using one of the methods above
+  2. Login with a demo account
+  3. Explore features based on your role:
+     - Student: Browse events, register, view tickets
+     - Organizer: Create events, scan QR codes
+     - HOD/Principal: Approve events
+     - Admin: View analytics and reports
+  4. Test backend integration
+  5. Check detailed documentation for more features
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                  🎉 READY TO RUN! ENJOY THE APP! 🎉                         ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
